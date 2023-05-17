@@ -6,44 +6,42 @@ import java.net.Socket;
 public class EchoClient {
     public static void main(String[] args) {
 
-        MainWindow mainWindow = new MainWindow();
-        mainWindow.setVisible(true);
+        // MainWindow mainWindow = new MainWindow();
+        // mainWindow.setVisible(true);
 
-        try {
+        try (Socket soc = new Socket("localhost", 9806);
+        ObjectOutputStream outputStream = new ObjectOutputStream(soc.getOutputStream());) {
             System.out.println("AYOOOO, client is kicking up!!! 🤩😎💯💯🔥🔥🔥");
-            Socket soc = new Socket("localhost", 9806);
-            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Wassup bbgorl, enter a string for me: ");
             
-            String str = userInput.readLine();
+            boolean exit = false;
             
-            ObjectOutputStream outputStream = new ObjectOutputStream(soc.getOutputStream());
-
-            outputStream.writeObject(new Message("Test message!"));
-            outputStream.flush();
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-            System.out.println(in.readLine());
-
-            soc.close();
-
+            while(!exit) {
+                
+                System.out.println("Wassup bbgorl, enter a string for me: ");
+                BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+                String message = userInput.readLine();
+                outputStream.writeObject(new Message(message));
+                outputStream.flush();
+                if(message.equals("exit")) {
+                    exit = true;
+                } 
+                // String str = userInput.readLine();
+            }
+            // outputStream.close();
+            // soc.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // try {
-        //     System.out.println("AYOOOO, client is kicking up!!! 🤩😎💯💯🔥🔥🔥");
-        //     Socket soc = new Socket("localhost", 9806);
-        //     BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-        //     System.out.println("Wassup bbgorl, enter a string for me: ");
-        //     String str = userInput.readLine();
-        //     PrintWriter out = new PrintWriter(soc.getOutputStream(), true);
-        //     out.println(str);
-        //     BufferedReader in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-        //     System.out.println(in.readLine());
-
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
     }
+}
+
+
+class SenderThread extends Thread {
+
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        super.run();
+    }
+
 }
