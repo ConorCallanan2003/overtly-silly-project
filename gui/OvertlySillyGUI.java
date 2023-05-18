@@ -2,8 +2,6 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class OvertlySillyGUI extends JFrame {
     private final JFrame frame;
@@ -25,6 +23,17 @@ public class OvertlySillyGUI extends JFrame {
 //        setSize(400, 500);
 //        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 //        panel1.setVisible(true);
+
+        // add padding to the text field
+        textField1.setBorder(BorderFactory.createCompoundBorder(
+                textField1.getBorder(),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+        // make the button not ugly
+        button1.setBorderPainted(false);
+//        button1.setFocusPainted(false);
+//        button1.setContentAreaFilled(false);
+        button1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 }
 
