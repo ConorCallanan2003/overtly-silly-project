@@ -8,23 +8,23 @@ import java.util.List;
 
 public class EchoServer {
 
-    static List<Message> messages = new ArrayList<>();
-    static List<ClientHandler> handlers = new ArrayList<>();
-
-    static Function addMessage = (Message message) -> {
-        messages.add(message);
-        for (ClientHandler handler : handlers) {
-            handler.onModified();
-        }
-    };
-
     public static void main(String[] args) {
+        List<Message> messages = new ArrayList<>();
+        List<ClientHandler> handlers = new ArrayList<>();
+    
+        Function addMessage = (Message message) -> {
+            messages.add(message);
+            for (ClientHandler handler : handlers) {
+                handler.onModified();
+            }
+        };
+
         try {
             System.out.println("Waiting and WAITING for clients....... 🥱🥱🥱🥱");
             ServerSocket serverSock = new ServerSocket(9806);
             while(true) {
                 Socket newSoc = serverSock.accept();
-                ClientHandler newHandler = new ClientHandler(newSoc, addMessage);
+                ClientHandler newHandler = new ClientHandler(newSoc, addMessage, messages);
                 newHandler.onModified();
                 newHandler.start();
                 handlers.add(newHandler);
@@ -43,11 +43,13 @@ class ClientHandler extends Thread implements ListObserver {
     private Socket soc;
     private Function addMessage;
     private ObjectOutputStream out;
+    private List<Message> messages;
 
-    public ClientHandler(Socket soc, Function addMessage) throws IOException {
+    public ClientHandler(Socket soc, Function addMessage, List<Message> messages) throws IOException {
         this.soc = soc;
         this.addMessage = addMessage;
         this.out = new ObjectOutputStream(soc.getOutputStream());
+        this.messages = messages;
     }
 
     @Override
@@ -76,7 +78,7 @@ class ClientHandler extends Thread implements ListObserver {
     @Override
     public void onModified() {
         try {
-            for (Message message : EchoServer.messages) {
+            for (Message message : messages) {
                 out.writeObject(message);
                 out.flush();
             }
