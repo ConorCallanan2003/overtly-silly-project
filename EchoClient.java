@@ -10,25 +10,18 @@ import java.util.Scanner;
 
 public class EchoClient {
 
-    static List<Message> messages = new ArrayList<>();
-    
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("IP: ");
-
         String ip = scanner.nextLine();
 
         System.out.println("Port Number: ");
-
         int portnum = Integer.parseInt(scanner.nextLine());
 
         System.out.println("What is your name? ");
-
         String name = scanner.nextLine();
-        
-        // Semaphore mutex = new Semaphore(0, false);
 
         try (Socket soc = new Socket(ip, portnum)) {
             SenderThread senderThread = new SenderThread(soc, name);
@@ -42,7 +35,6 @@ public class EchoClient {
                 if(receivedObj instanceof Message) {
                         Message message = (Message) receivedObj;
                         message.setOrigin(soc.getPort());
-                        // EchoClient.messages.add(message);
                         System.out.println(message.getSenderName() + ": " + message.getMessage());
                     }
                     else {
@@ -50,7 +42,6 @@ public class EchoClient {
                     }
                 } 
         } catch (Exception e) {
-            // e.printStackTrace();
         }
     }
 }
@@ -73,7 +64,6 @@ class SenderThread extends Thread {
             boolean exit = false;
             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
             while(!exit) {
-                // System.out.print("Send Message: ");
                 String message = userInput.readLine();
                 System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
                 try {
