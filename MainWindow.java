@@ -43,9 +43,18 @@ public class MainWindow extends JFrame {
     }
    
 
-    private void addMessage() {
+    public void addMessage() {
         chatArea.append(messageField.getText() + "\n\n");
         messageField.setText("");
+    }
+
+    // public void getInput() {
+    //     String message = chatArea.
+    // }
+
+    public void clearMessages() {
+        chatArea.selectAll();
+        chatArea.replaceSelection("");
     }
 
     class MyKeyListener implements KeyListener {

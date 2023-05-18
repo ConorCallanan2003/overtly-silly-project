@@ -1,9 +1,11 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Handler;
 
 
 public class EchoServer {
@@ -14,7 +16,7 @@ public class EchoServer {
     public static void printMessages() {
         System.out.println("Messages: \n\n");
         for (Message message : messages) {
-            System.out.println(message.getMessage() + "\n");
+            System.out.println("Message: " + message.getMessage() + "\nSender: " + message.getSenderName() + "\n\n");
         }
     }
 
@@ -26,14 +28,13 @@ public class EchoServer {
     };
 
     public static void main(String[] args) {
-      
         try {
             System.out.println("Waiting and WAITING for clients....... 🥱🥱🥱🥱");
             ServerSocket serverSock = new ServerSocket(9806);
-
             while(true) {
                 Socket newSoc = serverSock.accept();
-                ClientHandler newHandler = new ClientHandler(newSoc, messages, addMessage);
+                ClientHandler newHandler = new ClientHandler(newSoc, addMessage);
+                newHandler.onModified();
                 newHandler.start();
                 handlers.add(newHandler);
             }
@@ -46,16 +47,18 @@ public class EchoServer {
     
 }
 
-class ClientHandler extends Thread implements ListObserver{
+class ClientHandler extends Thread implements ListObserver {
 
     private Socket soc;
-    private List<Message> messages;
+    // private List<Message> messages;
     private Function addMessage;
+    private ObjectOutputStream out;
 
-    public ClientHandler(Socket soc, List<Message> messages, Function addMessage) {
+    public ClientHandler(Socket soc, Function addMessage) throws IOException {
         this.soc = soc;
-        this.messages = messages;
+        // this.messages = messages;
         this.addMessage = addMessage;
+        this.out = new ObjectOutputStream(soc.getOutputStream());
     }
 
     @Override
@@ -73,23 +76,44 @@ class ClientHandler extends Thread implements ListObserver{
                         if(message.getMessage() == "exit") {
                             exit = true;
                         } else {
-                            System.out.println("Received message '" + message.getMessage() + "' from sender: " + String.valueOf(message.getOrigin()));
+                            System.out.println("Received message '" + message.getMessage() + "' from sender: " + message.getSenderName());
                             // messages.add(message);
                             addMessage.execute(message);
                         }
                     }
                     // inputStream.close();
                 }
-                } catch (IOException | ClassNotFoundException e) {
-        }
+                } catch (IOException | ClassNotFoundException e) {}
         // EchoServer.printMessages();
     }
 
     @Override
     public void onModified() {
-        EchoServer.printMessages();
-    }
+        // EchoServer.printMessages();
+        // for (ClientHandler handler : EchoServer.handlers) {
+        //     // Socket soc = handler.soc;
+            // try (ObjectOutputStream out = new ObjectOutputStream(handler.soc.getOutputStream())) {
+            //     for (Message message : EchoServer.messages) {
+            //         out.writeObject(message);
+            //         out.flush();
+            //     }
+            //     // out.writeObject(out);
+            // } catch (IOException e) {
+            //     e.printStackTrace();
+            // }
+        // }
+        try {
+            for (Message message : EchoServer.messages) {
+                out.writeObject(message);
+                out.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        System.out.println("\n\nMESSAGE SENT\n\n");
 
+    }
 }
 
 interface ListObserver {
