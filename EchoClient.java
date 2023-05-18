@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import gui.*;
 
 public class EchoClient {
 
@@ -13,8 +14,10 @@ public class EchoClient {
 
     public static void main(String[] args) {
 
+        new OvertlySillyGUI();
         MainWindow mainWindow = new MainWindow();
         mainWindow.setVisible(true);
+
 
         try (Socket soc = new Socket("localhost", 9806)) {
             SenderThread senderThread = new SenderThread(soc);
