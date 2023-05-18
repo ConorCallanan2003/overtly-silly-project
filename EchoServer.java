@@ -1,9 +1,5 @@
-import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -22,6 +18,13 @@ public class EchoServer {
         }
     }
 
+    static Function addMessage = (Message message) -> {
+        messages.add(message);
+        for (ClientHandler handler : handlers) {
+            handler.onModified();
+        }
+    };
+
     public static void main(String[] args) {
       
         try {
@@ -30,7 +33,7 @@ public class EchoServer {
 
             while(true) {
                 Socket newSoc = serverSock.accept();
-                ClientHandler newHandler = new ClientHandler(newSoc, messages);
+                ClientHandler newHandler = new ClientHandler(newSoc, messages, addMessage);
                 newHandler.start();
                 handlers.add(newHandler);
             }
@@ -43,14 +46,16 @@ public class EchoServer {
     
 }
 
-class ClientHandler extends Thread {
+class ClientHandler extends Thread implements ListObserver{
 
     private Socket soc;
     private List<Message> messages;
+    private Function addMessage;
 
-    public ClientHandler(Socket soc, List<Message> messages) {
+    public ClientHandler(Socket soc, List<Message> messages, Function addMessage) {
         this.soc = soc;
         this.messages = messages;
+        this.addMessage = addMessage;
     }
 
     @Override
@@ -69,13 +74,19 @@ class ClientHandler extends Thread {
                             exit = true;
                         } else {
                             System.out.println("Received message '" + message.getMessage() + "' from sender: " + String.valueOf(message.getOrigin()));
-                            messages.add(message);
+                            // messages.add(message);
+                            addMessage.execute(message);
                         }
                     }
                     // inputStream.close();
                 }
                 } catch (IOException | ClassNotFoundException e) {
         }
+        // EchoServer.printMessages();
+    }
+
+    @Override
+    public void onModified() {
         EchoServer.printMessages();
     }
 
@@ -83,4 +94,8 @@ class ClientHandler extends Thread {
 
 interface ListObserver {
     void onModified();
+}
+
+interface Function {
+    void execute(Message argument);
 }
