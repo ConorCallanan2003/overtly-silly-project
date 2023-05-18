@@ -6,21 +6,32 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import gui.*;
+import java.util.Scanner;
 
 public class EchoClient {
 
     static List<Message> messages = new ArrayList<>();
-
+    
     public static void main(String[] args) {
 
-        new OvertlySillyGUI();
-        MainWindow mainWindow = new MainWindow();
-        mainWindow.setVisible(true);
+        Scanner scanner = new Scanner(System.in);
 
+        System.out.println("IP: ");
 
-        try (Socket soc = new Socket("localhost", 9806)) {
-            SenderThread senderThread = new SenderThread(soc);
+        String ip = scanner.nextLine();
+
+        System.out.println("Port Number: ");
+
+        int portnum = Integer.parseInt(scanner.nextLine());
+
+        System.out.println("What is your name? ");
+
+        String name = scanner.nextLine();
+        
+        // Semaphore mutex = new Semaphore(0, false);
+
+        try (Socket soc = new Socket(ip, portnum)) {
+            SenderThread senderThread = new SenderThread(soc, name);
             senderThread.start();
 
             boolean exit = false;
@@ -31,14 +42,13 @@ public class EchoClient {
                 if(receivedObj instanceof Message) {
                         Message message = (Message) receivedObj;
                         message.setOrigin(soc.getPort());
-                        // EchoClient.messages.add(message);;
-                        System.out.println("message: " + message.getMessage());
+                        // EchoClient.messages.add(message);
+                        System.out.println(message.getSenderName() + ": " + message.getMessage());
                     }
                     else {
                         exit = true;
                     }
                 } 
-            System.out.println(messages.size());
         } catch (Exception e) {
             // e.printStackTrace();
         }
@@ -49,9 +59,11 @@ public class EchoClient {
 class SenderThread extends Thread {
 
     private Socket soc;
+    private String name;
 
-    public SenderThread(Socket soc) {
+    public SenderThread(Socket soc, String name) {
         this.soc = soc;
+        this.name = name;
     }
 
     @Override
@@ -60,11 +72,10 @@ class SenderThread extends Thread {
         try (ObjectOutputStream outputStream = new ObjectOutputStream(soc.getOutputStream())) {
             boolean exit = false;
             BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Wassup bbgorl, what is your name: ");
-            String name = userInput.readLine();
             while(!exit) {
-                System.out.println("Wassup bbgorl, enter a string for me: ");
+                // System.out.print("Send Message: ");
                 String message = userInput.readLine();
+                System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
                 try {
                     outputStream.writeObject(new Message(message, name));
                     outputStream.flush();
